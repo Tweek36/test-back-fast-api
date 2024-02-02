@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "test-back-fast-api"
+version = "0.1.0"
+description = ""
+authors = ["tweek36 <sowakov.yura@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["all"], version = "^0.109.0"}
+logging = "^0.4.9.6"
+sqlalchemy = "^2.0.25"
+pyjwt = "^2.8.0"
+asyncpg = "^0.29.0"
+bcrypt = "^4.1.2"
+psycopg2 = "^2.9.9"
+python-multipart = "^0.0.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
