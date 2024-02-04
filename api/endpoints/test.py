@@ -89,6 +89,11 @@ async def update_test(
     token: JwtTokenData = Depends(get_token_data),
     session: AsyncSession = Depends(get_async_session),
 ):
+    if image:
+        filename = f"{token.sub}_{datetime.now().timestamp()}_{image.filename}"
+        file_path = os.path.join(Path(env.images_folder), filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
     service = TestService(session)
     published = (
         True
@@ -98,7 +103,7 @@ async def update_test(
         else None
     )
     data = {
-        "image": image.filename if image else None,
+        "image": filename if image else None,
         "title": title,
         "description": description,
         "category": category,

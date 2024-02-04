@@ -83,7 +83,7 @@ async def refresh(
     items = [cur_choice.winner_id, cur_choice.loser_id] + list(tests.items)
     pair, items = ChoiceService.get_pair(items)
     cur_choice = await choice_service.patch({"winner_id": pair[0], "loser_id": pair[1]}, Choice.id == tests.cur_choice)
-    tests = await tests_service.patch({"items": items, "is_refreshed": True}, tests_service.schema.id == tests_id)
+    tests = await tests_service.patch({"items": items}, tests_service.schema.id == tests_id)
     await session.commit()
     item1 = await test_item_service.get(
         test_item_service.schema.id == pair[0]
@@ -392,6 +392,20 @@ async def get_tests(
         )
     return res
 
+@router.get("/{tests_id}/items/")
+async def get_items(
+    tests_id: int,
+    token: JwtTokenData = Depends(get_token_data),
+    session: AsyncSession = Depends(get_async_session),
+):
+    tests_service = TestsService(session)
+    tests = await tests_service.get(Tests.id == tests_id, Tests.user_id == token.sub)
+    if not tests or tests.ended:
+        raise HTTPException(status_code=404, detail="Тест не найден")
+    stmt = (select(TestItem.videoId, TestItem.title)).select_from(TestItem).where(TestItem.id.in_(tests.items))
+    items = await session.execute(stmt)
+    items = items.mappings().all()
+    return items
 
 @router.get("/{tests_id}/winloss/{item_id}/")
 async def get_winloss(
