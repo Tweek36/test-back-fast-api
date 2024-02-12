@@ -20,7 +20,11 @@ async def register_user(
     salt = hashed_data["salt"]
     hashed_password = hashed_data["hashed_password"]
     service = UserService(session)
-    user = await service.add({**data.model_dump(exclude_unset=True)})
+    user_data = {**data.model_dump(exclude_unset=True)}
+    del user_data["password"]
+    del user_data["repeat_password"]
+    user_data["access_lvl"] = 1
+    user = await service.add(user_data)
     await session.commit()
     await session.refresh(user)
     await service.registrate(UserSecurity(user_id=user.id, 
@@ -28,7 +32,8 @@ async def register_user(
                                           salt=salt
                                          ))
     await session.commit()
-    token = await service.login(user.id, data.password, salt, hashed_password)
+    await session.refresh(user)
+    token = await service.login(user.id, data.password, salt=salt, hashed_password=hashed_password)
     response = JSONResponse({"id": user.id, "username": user.username})
     response.set_cookie("token", token, httponly=True, secure=True, max_age=env.exp_time_access, samesite="strict")
     return response

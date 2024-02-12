@@ -17,7 +17,6 @@ class UserService(BaseCRUDService[User]):
             response = response.scalars().first()
         except Exception as e:
             raise HTTPException(400, str(e))
-        await self.session.commit()
     
     async def login(self, user_id: int, password: str, salt: str = None, hashed_password: str = None, access_lvl: int = 1):
         if salt is None or hashed_password is None:

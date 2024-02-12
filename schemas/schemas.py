@@ -8,6 +8,7 @@ class User(Base):
     id = Column(BigInteger, primary_key=True, nullable=True)
     username = Column(String, nullable=False)
     email = Column(String, nullable=True)
+    access_lvl = Column(Integer, nullable=False)
 
 class UserSecurity(Base):
     __tablename__ = "user_security"
